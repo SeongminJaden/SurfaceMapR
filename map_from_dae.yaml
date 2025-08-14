@@ -1,0 +1,9 @@
+free_thresh: 0.196
+image: map_from_dae.pgm
+negate: 0
+occupied_thresh: 0.65
+origin:
+- -12.446740150451662
+- -12.212650299072267
+- 0.0
+resolution: 0.05
