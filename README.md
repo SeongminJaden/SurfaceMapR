@@ -60,6 +60,18 @@ PointCloud2 Topic을 Z축 히트맵으로 시각화:
 ```bash
 python3 pcd_heatmap.py
 ```
+
+## PCD -> CSV 생성
+pcd파일을 CSV로 변환:
+```bash
+python3 pcd.py
+```
+
+## Dae -> 2d map
+Dae 파일을 nav2 2d map으로 변환:
+```bash
+python3 map.py
+```
 - 스크립트 내 resolution 파라미터로 그리드 크기 조절 가능
 - 히트맵은 XY 평면에서 Z 높이 분포를 나타냄
 - 반드시 Navigation 사용 전 실행
