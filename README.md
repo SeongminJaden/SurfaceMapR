@@ -53,6 +53,10 @@ ros2 launch turtlebot3_gazebo empty_world.launch.py
 ```
 2. 포인트 클라우드 수집(Slam, Navigation)
 https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/
+```bash
+ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True map:=$HOME/map_from_dae.yaml
+```
+
 
 
 ## PCD 기반 히트맵 생성
