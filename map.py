@@ -16,7 +16,7 @@ def sample_triangle(v0, v1, v2, n_samples):
 # ---------------------------
 # 설정
 # ---------------------------
-dae_file = "/home/terranox/turtlebot3_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/gazebo_flat/meshes/gazebo_flat.dae"
+dae_file = "/home/terranox/turtlebot3_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/gazebo_flat/meshes/gazebo_flat.dae" # Dae파일 위치에 맞게 수정
 samples_per_triangle = 100  # 삼각형당 샘플 포인트 수
 resolution = 0.05           # 1셀당 meter
 z_threshold = 0.5           # 이 값 이하를 바닥으로 간주하고 제외
