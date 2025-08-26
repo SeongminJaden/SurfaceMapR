@@ -102,7 +102,7 @@ class RealtimePCDHeatmapNode(Node):
         rclpy.shutdown()
 
     def save_final_heatmap(self):
-        """누적된 포인트를 PCD와 Z-히트맵으로 저장"""
+        """누적된 포인트를 PCD와 정사각형 Z-히트맵으로 저장"""
         if not self.all_points:
             self.get_logger().warn("No points collected.")
             return
@@ -115,41 +115,51 @@ class RealtimePCDHeatmapNode(Node):
         o3d.io.write_point_cloud(pcd_file, combined_pcd)
         self.get_logger().info(f"Saved combined PCD: {pcd_file}")
 
-        # =================== 히트맵 생성 ===================
-        resolution = 0.1  # 격자 하나의 크기(m). 이걸 바꾸면 히트맵 해상도가 바뀜
+        # =================== 정사각형 히트맵 생성 ===================
+        resolution = 0.1  # 격자 하나의 크기(m)
         x_min, x_max = np.min(all_points_np[:, 0]), np.max(all_points_np[:, 0])
         y_min, y_max = np.min(all_points_np[:, 1]), np.max(all_points_np[:, 1])
-        x_bins = int((x_max - x_min) / resolution) + 1
-        y_bins = int((y_max - y_min) / resolution) + 1
 
-        # Z값을 담을 배열 초기화 (nan으로)
+        # x, y 범위를 같게 만들어 정사각형으로
+        x_range = x_max - x_min
+        y_range = y_max - y_min
+        max_range = max(x_range, y_range)
+
+        x_center = (x_min + x_max) / 2
+        y_center = (y_min + y_max) / 2
+        x_min_new = x_center - max_range / 2
+        x_max_new = x_center + max_range / 2
+        y_min_new = y_center - max_range / 2
+        y_max_new = y_center + max_range / 2
+
+        x_bins = int((x_max_new - x_min_new) / resolution) + 1
+        y_bins = int((y_max_new - y_min_new) / resolution) + 1
+
+        # Z값을 담을 배열 초기화
         z_map = np.full((y_bins, x_bins), np.nan)
         for pt in all_points_np:
-            x_idx = int((pt[0] - x_min) / resolution)
-            y_idx = int((pt[1] - y_min) / resolution)
-            if np.isnan(z_map[y_idx, x_idx]):
-                z_map[y_idx, x_idx] = pt[2]  # 첫 Z값
-            else:
-                z_map[y_idx, x_idx] = max(z_map[y_idx, x_idx], pt[2])  # Z 최대값
+            x_idx = int((pt[0] - x_min_new) / resolution)
+            y_idx = int((pt[1] - y_min_new) / resolution)
+            if 0 <= x_idx < x_bins and 0 <= y_idx < y_bins:
+                if np.isnan(z_map[y_idx, x_idx]):
+                    z_map[y_idx, x_idx] = pt[2]
+                else:
+                    z_map[y_idx, x_idx] = max(z_map[y_idx, x_idx], pt[2])
 
         # =================== 히트맵 시각화 ===================
-        plt.figure(figsize=(10, 8))  # 그래프 너비(width)와 높이(height) 조절 (인치 단위)
+        plt.figure(figsize=(8, 8))  # 정사각형 비율
         plt.imshow(z_map, cmap='jet', origin='lower',
-                   extent=[x_min, x_max, y_min, y_max])
-        plt.colorbar(label='Height (Z)')  # Z축 단위 표시
-        plt.title("Final Z-Axis Heatmap")
+                   extent=[x_min_new, x_max_new, y_min_new, y_max_new])
+        plt.colorbar(label='Height (Z)')
+        plt.title("Final Z-Axis Heatmap (Square)")
         plt.xlabel("X")
         plt.ylabel("Y")
         plt.tight_layout()
-        heatmap_file = os.path.join(self.output_dir, "final_heatmap.png")
+        heatmap_file = os.path.join(self.output_dir, "final_heatmap_square.png")
         plt.savefig(heatmap_file)
         plt.show()
         self.get_logger().info(f"Saved final heatmap: {heatmap_file}")
 
-        # ---------------- Z축 단위 변경 ----------------
-        # 예를 들어 Z를 cm 단위로 보고 싶으면 아래처럼 하면 됨
-        # plt.colorbar(label='Height (Z) [cm]')  # 단위만 바꿔주면 됨
-        # z_map_cm = z_map * 100
 
 def main(args=None):
     rclpy.init(args=args)
@@ -163,6 +173,7 @@ def main(args=None):
             node.save_final_heatmap()
         node.destroy_node()
         rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
