@@ -16,10 +16,14 @@ def sample_triangle(v0, v1, v2, n_samples):
 # ---------------------------
 # 설정
 # ---------------------------
-dae_file = "/home/terranox/turtlebot3_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/gazebo_flat/meshes/gazebo_flat.dae" # Dae파일 위치에 맞게 수정
-samples_per_triangle = 100  # 삼각형당 샘플 포인트 수
-resolution = 0.05           # 1셀당 meter
-z_threshold = 0.5           # 이 값 이하를 바닥으로 간주하고 제외
+dae_file = "./gazebo_flat.dae"  # DAE 파일 위치에 맞게 수정
+samples_per_triangle = 200       # 삼각형당 샘플 포인트 수
+resolution = 0.05                # 1셀당 meter
+z_threshold = 3.0                # 이 값 이하를 바닥으로 간주하고 제외
+
+# "원래 크기" (기준 맵 크기) - 두 번째 결과 기준
+target_x_range = 24.3  # x축 범위 (-12.4 ~ 11.8)
+target_y_range = 22.0  # y축 범위 (-12.2 ~ 9.8)
 
 # ---------------------------
 # DAE 로드 및 포인트 샘플링
@@ -31,6 +35,26 @@ for geom in mesh.geometries:
     for prim in geom.primitives:
         if isinstance(prim, collada.triangleset.TriangleSet):
             vertex_array = prim.vertex
+
+            # ---------------------------
+            # 스케일 자동 보정
+            # ---------------------------
+            # 현재 mesh 크기
+            cur_x_min, cur_x_max = vertex_array[:,0].min(), vertex_array[:,0].max()
+            cur_y_min, cur_y_max = vertex_array[:,1].min(), vertex_array[:,1].max()
+            cur_x_range = cur_x_max - cur_x_min
+            cur_y_range = cur_y_max - cur_y_min
+
+            # 스케일 비율 (x, y 중 큰 쪽 기준으로 보정)
+            scale_x = target_x_range / cur_x_range
+            scale_y = target_y_range / cur_y_range
+            scale = min(scale_x, scale_y)
+
+            vertex_array = vertex_array * scale
+
+            # ---------------------------
+            # 샘플링
+            # ---------------------------
             for tri_indices in prim.vertex_index:
                 v0 = vertex_array[tri_indices[0]]
                 v1 = vertex_array[tri_indices[1]]
@@ -57,6 +81,7 @@ height = int(np.ceil((y_max - y_min) / resolution))
 
 # 흑백 맵 초기화 (255=free, 0=occupied)
 pgm = np.ones((height, width), dtype=np.uint8) * 255
+print(f"맵 범위: x=({x_min:.2f},{x_max:.2f}), y=({y_min:.2f},{y_max:.2f})")
 
 # 포인트를 그리드로 변환
 for pt in xy_points:
@@ -86,4 +111,5 @@ map_yaml = {
 }
 with open(yaml_filename, "w") as f:
     yaml.dump(map_yaml, f, default_flow_style=False)
-print(f"{yaml_filename} 저장 완료!")
+print(f"{yaml_filename} 저장 완료!") 
+

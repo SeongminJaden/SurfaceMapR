@@ -62,8 +62,7 @@ ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True map:
 ## PCD 기반 히트맵 생성
 PointCloud2 Topic을 Z축 히트맵으로 시각화:
 ```bash
-python3 pcd_to_heatmap.py
-#엔터를 눌러 다음 단계 진행, 히트맵이 나오면 완료
+python3 pcd_heatmap.py
 ```
 
 ## PCD -> CSV 생성

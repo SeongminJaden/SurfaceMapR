@@ -1,0 +1,7 @@
+pycollada
+numpy
+pillow
+pyyaml
+matplotlib
+open3d
+transformations
