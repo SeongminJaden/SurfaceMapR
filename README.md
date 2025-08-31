@@ -1,6 +1,8 @@
 # TurtleBot3용 Velodyne LiDAR 시뮬레이션
 
-이 저장소는 Gazebo에서 TurtleBot3 로봇에 Velodyne LiDAR를 시뮬레이션하는 설정과 사용 방법을 제공합니다.  
+<img width="800" height="800" alt="final_floor_heatmap" src="https://github.com/user-attachments/assets/00db3b4c-ce09-4b50-8621-2879152333dd" />
+
+이 프로젝트는 Gazebo에서 TurtleBot3 로봇에 Velodyne LiDAR를 시뮬레이션하는 설정과 사용 방법을 제공합니다.  
 LiDAR 센서 정의를 개선했으며, 포인트 클라우드 수집 및 Z축 히트맵 생성 기능을 포함하고 있습니다.
 
 ---
